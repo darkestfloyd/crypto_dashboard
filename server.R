@@ -8,23 +8,34 @@
 #
 
 library(shiny)
+library(shinydashboard)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
-
-require(tidyverse)
-require(blotter)
-require(binancer)
-
-    output$distPlot <- renderPlot({
-
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
-
+    
+    require(tidyverse)
+    require(blotter)
+    require(binancer)
+    
+    source("utils.R")
+    
+    observeEvent(input$syncButton, {
+        binance_sync()
     })
-
+    
+    observe({
+        if (!file.exists("binance_wallet.RDS")) binance_sync()
+        message("Reading wallet and trades from disk...")
+        bwallet <<- readRDS("binance_wallet.RDS")
+        btrades <<- readRDS("binance_trades.RDS")
+        
+        
+    })
+    
+    output$positionPlot <- renderPlot({
+        ggplot(bwallet) + 
+            geom_col(aes(x=reorder(asset, -total), y=total))
+    })
+    
+    
 })

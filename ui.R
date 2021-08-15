@@ -8,26 +8,17 @@
 #
 
 library(shiny)
+library(shinydashboard)
 
 # Define UI for application that draws a histogram
-shinyUI(fluidPage(
-
-    # Application title
-    titlePanel("Working!"),
-
-    # Sidebar with a slider input for number of bins
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-            plotOutput("distPlot")
-        )
-    )
-))
+shinyUI(
+    dashboardPage(
+        header = dashboardHeader(title = "Crypto Dashboard"),
+        sidebar = dashboardSidebar(disable = F, collapsed = T,
+                                   actionButton("syncButton", "Sync Binance")),
+        body = dashboardBody(
+            
+            box(title = "Position Distribution",
+                plotOutput(outputId = "positionPlot"))
+            
+        )))
